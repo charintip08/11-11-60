@@ -2,25 +2,53 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const app = express()
 
-app.use(bodyParser.urlencoded({extended:false}))
+app.get('/greeting', (req, res) => {
+    let lang = {
+        en: 'Hello',
+        th: 'สวัสดี'
+    }
+
+    let l = req.query.lang
+    console.log(l)
+
+
+    if (!l) {
+        res.json({ message: 'Hello' })
+    } else {
+        res.json({ message: lang[l] })
+    }
+
+
+})
+let students = [
+    { id: '1', name: 'sirirat', lastname: 'chamthaw', studentid: '58160639', faculty: 'IT' },
+    {
+        id: '2', name: 'waroon', lastname: 'larpsrisawad', studentid: '58160639', faculty: 'IT'
+    }]
+
+
+app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
-let students = [
-    { id :1, name: 'Charintip', email: '58160378@go.buu.ac.th'},
-    { id :2, name: 'Pavarisa', email: '58160379@go.buu.ac.th'}
-]
-
 app.post('/students', (req, res) => {
-    let student =req.body
+    let student = req.body
+    student.id = students.length + 1
     students.push(student)
-    res.json(student)
+    res.status(201).json(student)
 })
-
 app.get('/students', (req, res) => {
-    res.json(students)
+
+    res.status(200).json(students)
 })
 
-app.get('/greeting', (req, res) => {
-   res.json({message: 'Hello!'})
+app.get('/students/:id', (req, res) => {
+    let id = req.params.id
+    if (!id || isNaN(id)) {
+        res.status(400).json({ errorMessage: "This api required `id` parameter" })
+        return
+    }
+    res.json(students[req.params.id - 1])
 })
-module.exports = app//หากมีใครเรียกใช้งานจะนำmodule ไปใช้ด้วย
+
+
+module.exports = app
